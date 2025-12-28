@@ -54,10 +54,12 @@ input_boxes = [
 ]
 
 start_button = pygame.Rect(300, 400, 200, 50)
+repeat_button = pygame.Rect(300, 500, 200, 50)
 
 state = "INPUT"
 running = True
 t = 0
+animation_complete = False
 
 while running:
     for event in pygame.event.get():
@@ -88,6 +90,13 @@ while running:
             if event.type == pygame.MOUSEBUTTONDOWN or (pygame.time.get_ticks() - results_timer > 3000):
                 state = "ANIMATION"
                 t = 0
+                animation_complete = False
+
+        elif state == "ANIMATION":
+            if event.type == pygame.MOUSEBUTTONDOWN and animation_complete:
+                if repeat_button.collidepoint(event.pos):
+                    t = 0
+                    animation_complete = False
 
     screen.fill((255, 255, 255))
 
@@ -123,19 +132,26 @@ while running:
         screen.blit(hint, (WIDTH // 2 - hint.get_width() // 2, 450))
 
     elif state == "ANIMATION":
-        if t <= time_to_max:
-            s = v0 * t + 0.5 * a * t**2
-            v = v0 + a * t
-            direction = "UP"
-        else:
-            t_return = t - time_to_max
-            s = distance - (0.5 * (-a) * t_return**2)
-            s = max(0, s)
-            v = -a * t_return
-            direction = "DOWN"
+        if not animation_complete:
+            if t <= time_to_max:
+                s = v0 * t + 0.5 * a * t**2
+                v = v0 + a * t
+                direction = "UP"
+            else:
+                t_return = t - time_to_max
+                s = distance - (0.5 * (-a) * t_return**2)
+                s = max(0, s)
+                v = -a * t_return
+                direction = "DOWN"
 
-        if t >= time_to_max * 2:
-            t = 0
+            if t >= time_to_max * 2:
+                animation_complete = True
+                s = 0
+                v = 0
+        else:
+            s = 0
+            v = 0
+            direction = "COMPLETE"
 
         scale = 100
         start_x = 100
@@ -168,7 +184,15 @@ while running:
         title = font.render("Inclined Plane Motion", True, (0, 0, 255))
         screen.blit(title, (WIDTH - 350, 20))
 
-        t += 1 / 60
+        if animation_complete:
+            mouse_pos = pygame.mouse.get_pos()
+            button_color = (100, 150, 255) if repeat_button.collidepoint(mouse_pos) else (50, 100, 200)
+            pygame.draw.rect(screen, button_color, repeat_button)
+            pygame.draw.rect(screen, (0, 50, 150), repeat_button, 3)
+            button_text = small_font.render("REPEAT", True, (255, 255, 255))
+            screen.blit(button_text, (repeat_button.x + 60, repeat_button.y + 12))
+        else:
+            t += 1 / 60
 
     pygame.display.flip()
     clock.tick(60)

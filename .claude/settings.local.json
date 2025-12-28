@@ -5,7 +5,11 @@
       "Bash(python projectile_problem.py:*)",
       "Bash(python inclined_plane.py:*)",
       "Bash(pip install:*)",
-      "Bash(python test_animation.py:*)"
+      "Bash(python test_animation.py:*)",
+      "Bash(ls:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
